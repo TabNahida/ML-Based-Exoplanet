@@ -1,0 +1,132 @@
+% -------------------------------------------------------------
+% Exomoon Detection via Physically-Grounded RNN-Assisted Pipeline
+% -------------------------------------------------------------
+\documentclass[11pt]{article}
+
+% ---------- Packages ----------
+\usepackage{geometry}      % Page margins
+\usepackage{graphicx}      % Figures
+\usepackage{amsmath}       % Math environments
+\usepackage{amssymb}
+\usepackage{natbib}        % Bibliography
+\usepackage{hyperref}      % Hyperlinks
+\usepackage{authblk}       % Author / affiliation blocks
+
+% ---------- Metadata ----------
+\title{\textbf{A Physically-Grounded Synthetic Light-Curve Generator and RNN Discriminator Framework for Exomoon Detection}}
+\author[1]{Huanyu Ye\thanks{Corresponding author: tab@tabye.top}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =============================================================
+\begin{abstract}
+	Detecting natural satellites outside the Solar System (exomoons) is essential for constraining theories of planet formation and assessing the prevalence of potentially habitable environments beyond Earth.  However, exomoon signals rarely exceed \(\sim100\)\,ppm in broadband photometry, rendering them vulnerable to both photon noise and time-correlated systematics.  We present a preparatory, data-driven framework that leverages \emph{physically-grounded} synthetic light curves to train a recurrent neural-network (RNN) discriminator before the arrival of large, high-precision time-series data from the \textit{James Webb Space Telescope} (JWST).  Light-curve generation is performed with an analytic three-body transit solver based on the \texttt{batman} package \citep{Kreidberg2015}, extended to include planet–moon dynamics, limb darkening from modern stellar‐atmosphere grids \citep{Claret2023}, and a red-plus-white noise prescription representative of JWST systematics.  A bi-directional GRU classifier is then optimised to distinguish moon-bearing from moon-free curves, with evaluation metrics defined by theoretical signal-to-noise estimates and receiver-operating-characteristic statistics.  Although no real observations are incorporated at this stage, we outline a transfer strategy that couples our discriminator to simulated JWST data streams from \texttt{JexoSim} and post-processing with the \texttt{Eureka!} pipeline.  The proposed workflow aims to raise the practical exomoon detection threshold and provides an extensible template for other faint, transient astrophysical phenomena.
+\end{abstract}
+
+\textbf{Keywords:} exomoon, JWST, synthetic photometry, time-series analysis, RNN, light-curve simulation
+
+\newpage
+
+% =============================================================
+\tableofcontents
+
+% =============================================================
+\section{Introduction}\label{sec:intro}
+\subsection{Scientific Motivation}
+Exomoons occupy a pivotal niche in comparative planetology: they encode the dynamical histories of their host systems and may themselves harbour life‐supporting conditions \citep{HellerBarnes2013}.  To date, the most prominent candidate is the putative Neptune-sized satellite Kepler-1625\,b-i \citep{TeacheyKipping2018}; yet subsequent analyses have highlighted the fragility of such detections when confronted with correlated noise and stellar variability \citep{Kreidberg2019}.  The ability to robustly identify exomoons would thus open a new frontier for habitability studies and refine models of satellite formation.
+
+\subsection{Observational Challenges}
+Traditional photometric searches rely on transit-related timing (TTV) and duration (TDV) variations \citep{Heller2016TTVTDV} or on direct light-curve fitting.  In practice, lunar signatures are subtle: typical moon-to-star area ratios imply depths of $<$100 ppm, often below the noise floor of even space-based optical surveys \citep{Rodenbeck2020}.  Moreover, stellar activity can mimic or obscure the characteristic pre- and post-transit shoulders produced by a moon companion.
+
+\subsection{Infrared Opportunities with JWST}
+The launch of JWST has shifted the landscape.  Its near-infrared spectro-photometric modes (NIRISS SOSS, NIRCam grism, NIRSpec PRISM) deliver superior photometric stability and access to molecular-absorption windows that enhance planet-to-star contrast \citep{Rustamkulov2024}.  When combined with improved limb-darkening knowledge \citep{Claret2023}, these capabilities significantly lower the noise barrier for exomoon detection.  Yet the scarcity of archival JWST time-series observations necessitates an interim strategy grounded in simulation.
+
+\subsection{Proposed Framework}
+We therefore advocate a two-stage approach.  First, generate high-fidelity planet–moon transit curves using analytic models (\texttt{batman}) coupled with realistic stellar and instrumental noise.  Second, train a data-efficient bi-directional GRU classifier on these curves to learn the temporal morphology of exomoon events.  Transfer to real data will exploit forward simulators such as \texttt{JexoSim} \citep{Sarkar2024} and end-to-end reduction pipelines like \texttt{Eureka!} \citep{Bell2023}.  This methodology synthesises the interpretability of physics-based modelling with the pattern-recognition power of neural networks, offering a transparent and adaptable route toward the first unambiguous exomoon discoveries.
+
+\subsection{Paper Outline}
+Section~\ref{sec:methods} details the synthetic light-curve generator and RNN discriminator.  Section~\ref{sec:expected} defines evaluation metrics and lays out a roadmap for validation against forthcoming JWST datasets.  We discuss strengths, limitations, and future extensions in Section~\ref{sec:discussion}, and summarise our conclusions in Section~\ref{sec:conclusion}.
+
+% =============================================================
+\section{Related Work}
+\label{sec:related}
+\subsection{Exomoon Detection Techniques}
+% TTV/TDV, direct transit fitting, current candidates
+
+\subsection{Synthetic Light-Curve Simulators}
+% batman, JexoSim, Eureka!
+
+\subsection{Machine Learning for Stellar Light Curves}
+% TimeGAN, prior GAN/RNN approaches; contrast with our physical generator
+
+% =============================================================
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Physically-Grounded Light-Curve Generator}
+\label{sec:generator}
+% • Mandel \& Agol analytic model reference
+% • Three-body planet–moon system equations
+% • Parameter sampling strategy
+% • Noise model (white + red)
+
+\subsection{RNN-based Discriminator}
+\label{sec:discriminator}
+% • Architecture: Bi-GRU + fully-connected
+% • Loss function and optimisation
+% • Training protocol (simulation-only)
+
+\subsection{Evaluation Metrics}
+\label{sec:metrics}
+% • Theoretical S/N (Fisher information)
+% • ROC AUC, Recall@FPR0.01
+% • Transferability plan to JWST data
+
+% =============================================================
+\section{Expected Outcomes and Validation Plan}
+\label{sec:expected}
+%\begin{figure}[ht]
+%    \centering
+%    \includegraphics[width=0.75\linewidth]{placeholder_lightcurve.png}
+%    \caption{Synthetic planet–moon transit light curve with annotated moon signatures.}
+%    \label{fig:synthetic}
+%\end{figure}
+
+\begin{table}[ht]
+    \centering
+    \caption{Theoretically detectable moon radius vs.\ noise level.}
+    \label{tab:snr}
+    \begin{tabular}{ccc}
+        \hline
+        Noise (ppm) & Min.\ $R_\mathrm{m}/R_\star$ & S/N\\
+        \hline
+        % Fill with analytic results
+        \hline
+    \end{tabular}
+\end{table}
+
+% Describe planned figures/tables and future JWST dataset comparison.
+
+% =============================================================
+\section{Discussion}
+\label{sec:discussion}
+% Strengths, limitations, and future improvements (e.g.\ star-spot modelling,
+% Transformer discriminator, semi-supervised fine-tuning).
+
+% =============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% Concise wrap-up and outlook.
+
+% =============================================================
+\section*{Acknowledgments}
+% Funding sources, collaborations, telescope time acknowledgments.
+
+% =============================================================
+\bibliographystyle{unsrtnat}
+\bibliography{exomoon_refs} % exomoon_refs.bib contains all cited works.
+
+\end{document}
